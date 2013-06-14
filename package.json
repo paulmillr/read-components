@@ -1,17 +1,15 @@
 {
-  "name": "paulmillr",
-  "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "name": "read-components",
+  "version": "0.1.0",
+  "description": "Read bower and component(1) components",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "",
-  "author": "",
+  "repository": "git://github.com/paulmillr/read-components.git",
+  "author": "Paul Miller (http://paulmillr.com)",
   "license": "BSD",
-  "dependencies": {
-    "when": "~2.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "~1.10.0",
     "chai": "~1.6.0"

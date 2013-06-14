@@ -1,5 +1,3 @@
-var when = require('when');
-var wrap = require('when/node/function').call;
 var sysPath = require('path');
 var fs = require('fs');
 
@@ -89,8 +87,10 @@ var find = function(list, predicate) {
 // on each iteration.
 var setSortingLevels = function(packages) {
   var setLevel = function(initial, pkg) {
-    pkg.sortingLevel = Math.max(pkg.sortingLevel || 0, initial);
+    var level = Math.max(pkg.sortingLevel || 0, initial);
     var deps = Object.keys(pkg.dependencies);
+    // console.debug('setLevel', pkg.name, level);
+    pkg.sortingLevel = level;
     deps.forEach(function(dep) {
       setLevel(initial + 1, find(packages, function(_) {
         return _.name === dep;
@@ -109,12 +109,16 @@ var sortPackages = function(packages) {
   });
 };
 
-var read = function() {
-  fs.readdir(sysPath.join('.', 'components'), function(error, packages) {
+var getPaths = function(directory, callback) {
+  if (directory == null) directory = '.';
+  var parent = sysPath.join(directory, 'components');
+  fs.readdir(parent, function(error, packages) {
     if (error) throw new Error(error);
-    console.log(sortPackages(readBowerPackages(packages)));
+    var sorted = sortPackages(readBowerPackages(packages, parent));
+    // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
+    callback(null, sorted);
   });
 };
 
-read();
-// module.exports = read;
+// getPaths();
+module.exports = getPaths;
