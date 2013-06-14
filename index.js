@@ -4,9 +4,10 @@ var sysPath = require('path');
 var fs = require('fs');
 
 var standardizePackage = function(data) {
-  data.main = (Array.isArray(data.main)) ? data.main : [data.main];
-  if (!data.scripts) data.scripts = [];
-  if (!data.styles) data.styles = [];
+  if (data.main && !Array.isArray(data.main)) data.main = [data.main];
+  ['main', 'scripts', 'styles'].forEach(function(_) {
+    if (!data[_]) data[_] = [];
+  });
   return data;
 };
 
