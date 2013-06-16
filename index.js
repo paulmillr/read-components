@@ -113,8 +113,14 @@ var getPaths = function(directory, callback) {
   if (directory == null) directory = '.';
   var parent = sysPath.join(directory, 'components');
   fs.readdir(parent, function(error, packages) {
-    if (error) throw new Error(error);
-    var sorted = sortPackages(readBowerPackages(packages, parent));
+    if (error) return callback(new Error(error));
+    var sorted;
+    try {
+      sorted = sortPackages(readBowerPackages(packages, parent));
+    } catch(error) {
+      callback(error);
+      return;
+    }
     // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
     callback(null, sorted);
   });
