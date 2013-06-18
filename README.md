@@ -7,9 +7,9 @@ Read Twitter Bower and component(1) components.
 Node.js:
 
 ```javascript
-var readComponents = require('read-components');
+var reader = require('read-components');
 
-readComponents('your-project-dir-with-bower.json', function(error, components) {
+reader.readBowerComponents('your-project-dir-with-bower.json', function(error, components) {
   console.log('All components:', components);
 });
 ```

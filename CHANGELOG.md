@@ -1,3 +1,6 @@
+# read-components 0.3.0 (18 June 2013)
+* Added new API syntax.
+
 # read-components 0.2.1 (18 June 2013)
 * Made API fully async.
 

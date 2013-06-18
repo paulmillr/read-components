@@ -10,48 +10,42 @@ var unique = function(list) {
   }, {}));
 };
 
-
 var readJson = function(file, callback) {
-  fs.readFile(file, function(err, contents) {
-    if (err) return callback(err);
+  fs.exists(file, function(exists) {
+    if (!exists) {
+      return callback(new Error('Component must have "' + bowerJson + '"'));
+    };
 
-    var json;
+    fs.readFile(file, function(err, contents) {
+      if (err) return callback(err);
 
-    try {
+      var json;
+
+      try {
         json = JSON.parse(contents.toString());
-    } catch (err) {
+      } catch(err) {
         err.code = 'EMALFORMED';
-        return callback(err);
-    }
+        return callback(new Error('Component JSON file is invalid in "' + file + '": ' + err));
+      }
 
-    callback(null, json);
+      if (!json.main && !json.scripts && !json.styles) {
+        return callback(new Error('Component JSON file must have `main` property. See git.io/brunch-bower. Contact component author of "' + file + '"'));
+      }
+
+      callback(null, json);
+    });
   });
 };
 
 // Read bower.json.
 // Returns String.
-var readBowerJson = function(path, callback) {
-  var bowerJson = sysPath.join(path, 'bower.json');
+var jsonPaths = {
+  bower: 'bower.json',
+  component: 'component.json'
+};
 
-  fs.exists(bowerJson, function(exists) {
-    if (!exists) {
-      return callback(new Error('Bower component must have bower.json in "' + bowerJson + '"'));
-    };
-
-    var fullPath = sysPath.resolve(bowerJson);
-
-    readJson(fullPath, function(error, data) {
-      if (error) return callback(new Error('Bower component bower.json is invalid in "' + path + '": ' + error));
-
-      var main = data.main;
-
-      if (!main && !data.scripts && !data.styles) {
-        return callback(new Error('Bower component bower.json must have `main` property. See git.io/brunch-bower. Contact component author of "' + path + '"'));
-      }
-
-      callback(null, data);
-    });
-  });
+var getJsonPath = function(path, type) {
+  return sysPath.resolve(sysPath.join(path, jsonPaths[type]));
 };
 
 // Coerce data.main, data.scripts and data.styles to Array.
@@ -74,7 +68,7 @@ var getPackageFiles = exports.getPackageFiles = function(pkg) {
 };
 
 var processPackage = function(path, callback) {
-  readBowerJson(path, function(error, json) {
+  readJson(getJsonPath(path, 'bower'), function(error, json) {
     if (error) return callback(error);
     var pkg = standardizePackage(json);
     var files = getPackageFiles(pkg).map(function(relativePath) {
@@ -131,7 +125,11 @@ var sortPackages = function(packages) {
   });
 };
 
-var getPaths = function(directory, callback) {
+var readBowerComponents = exports.readBowerComponents = function(directory, callback) {
+  if (typeof directory === 'function') {
+    directory = null;
+    callback = directory;
+  }
   if (directory == null) directory = '.';
   var parent = sysPath.join(directory, 'components');
   fs.readdir(parent, function(error, packages) {
@@ -145,5 +143,5 @@ var getPaths = function(directory, callback) {
   });
 };
 
-getPaths('.', console.log.bind(console));
-module.exports = getPaths;
+// getBowerPaths('.', console.log.bind(console));
+// module.exports = getPaths;
