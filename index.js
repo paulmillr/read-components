@@ -1,5 +1,6 @@
 var sysPath = require('path');
 var fs = require('fs');
+var each = require('async-each');
 
 // Return unique list items.
 var unique = function(list) {
@@ -9,28 +10,48 @@ var unique = function(list) {
   }, {}));
 };
 
+
+var readJson = function(file, callback) {
+  fs.readFile(file, function(err, contents) {
+    if (err) return callback(err);
+
+    var json;
+
+    try {
+        json = JSON.parse(contents.toString());
+    } catch (err) {
+        err.code = 'EMALFORMED';
+        return callback(err);
+    }
+
+    callback(null, json);
+  });
+};
+
 // Read bower.json.
 // Returns String.
-var readBowerJson = function(path) {
+var readBowerJson = function(path, callback) {
   var bowerJson = sysPath.join(path, 'bower.json');
-  if (!fs.existsSync(bowerJson)) {
-    throw new Error('Bower component must have bower.json in "' + bowerJson + '"');
-  };
 
-  var data, error;
-  try {
-    data = require(sysPath.resolve(bowerJson));
-  } catch(e) {
-    throw new Error('Bower component bower.json is invalid in "' + path + '": ' + e);
-  }
+  fs.exists(bowerJson, function(exists) {
+    if (!exists) {
+      return callback(new Error('Bower component must have bower.json in "' + bowerJson + '"'));
+    };
 
-  var main = data.main;
+    var fullPath = sysPath.resolve(bowerJson);
 
-  if (!main && !data.scripts && !data.styles) {
-    throw new Error('Bower component bower.json must have `main` property. Contact component author of "' + path + '"')
-  }
+    readJson(fullPath, function(error, data) {
+      if (error) return callback(new Error('Bower component bower.json is invalid in "' + path + '": ' + error));
 
-  return data;
+      var main = data.main;
+
+      if (!main && !data.scripts && !data.styles) {
+        return callback(new Error('Bower component bower.json must have `main` property. See git.io/brunch-bower. Contact component author of "' + path + '"'));
+      }
+
+      callback(null, data);
+    });
+  });
 };
 
 // Coerce data.main, data.scripts and data.styles to Array.
@@ -52,26 +73,27 @@ var getPackageFiles = exports.getPackageFiles = function(pkg) {
   return unique(list);
 };
 
-var processPackage = function(path) {
-  var pkg = standardizePackage(readBowerJson(path));
-  var files = getPackageFiles(pkg).map(function(relativePath) {
-    return sysPath.join(path, relativePath);
+var processPackage = function(path, callback) {
+  readBowerJson(path, function(error, json) {
+    if (error) return callback(error);
+    var pkg = standardizePackage(json);
+    var files = getPackageFiles(pkg).map(function(relativePath) {
+      return sysPath.join(path, relativePath);
+    });
+    callback(null, {
+      name: pkg.name, version: pkg.version, files: files,
+      dependencies: pkg.dependencies || {}
+    });
   });
-  return {
-    name: pkg.name, version: pkg.version, files: files,
-    dependencies: pkg.dependencies || {}
-  };
 };
 
-var readBowerPackages = function(list, parent) {
+var readBowerPackages = function(list, parent, callback) {
   if (parent == null) parent = sysPath.join('.', 'components');
 
   var paths = list.map(function(item) {
     return sysPath.join(parent, item);
   });
-  var data = paths.map(processPackage);
-
-  return data;
+  each(paths, processPackage, callback);
 };
 
 
@@ -114,17 +136,14 @@ var getPaths = function(directory, callback) {
   var parent = sysPath.join(directory, 'components');
   fs.readdir(parent, function(error, packages) {
     if (error) return callback(new Error(error));
-    var sorted;
-    try {
-      sorted = sortPackages(readBowerPackages(packages, parent));
-    } catch(error) {
-      callback(error);
-      return;
-    }
-    // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
-    callback(null, sorted);
+    readBowerPackages(packages, parent, function(error, data) {
+      if (error) return callback(error);
+      var sorted = sortPackages(data);
+      // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
+      callback(null, sorted);
+    });
   });
 };
 
-// getPaths();
+getPaths('.', console.log.bind(console));
 module.exports = getPaths;
