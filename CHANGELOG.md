@@ -1,3 +1,6 @@
+# read-components 0.2.1 (18 June 2013)
+* Made API fully async.
+
 # read-components 0.2.0 (18 June 2013)
 * Don’t throw fatal error on fail.
 
