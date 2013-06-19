@@ -144,4 +144,3 @@ var readBowerComponents = exports.readBowerComponents = function(directory, call
 };
 
 // getBowerPaths('.', console.log.bind(console));
-// module.exports = getPaths;
