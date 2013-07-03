@@ -2,6 +2,17 @@ var sysPath = require('path');
 var fs = require('fs');
 var each = require('async-each');
 
+var jsonPaths = {
+  bower: 'bower.json',
+  component: 'component.json'
+};
+
+var dirs = {
+  bower: 'bower_components',
+  component: 'components'
+};
+var jsonProps = ['main', 'scripts', 'styles'];
+
 // Return unique list items.
 var unique = function(list) {
   return Object.keys(list.reduce(function(obj, _) {
@@ -10,10 +21,14 @@ var unique = function(list) {
   }, {}));
 };
 
+var resolveComponent = function(name) {
+  return name.replace('/', '-');
+};
+
 var readJson = function(file, callback) {
   fs.exists(file, function(exists) {
     if (!exists) {
-      return callback(new Error('Component must have "' + bowerJson + '"'));
+      return callback(new Error('Component must have "' + file + '"'));
     };
 
     fs.readFile(file, function(err, contents) {
@@ -28,20 +43,9 @@ var readJson = function(file, callback) {
         return callback(new Error('Component JSON file is invalid in "' + file + '": ' + err));
       }
 
-      if (!json.main && !json.scripts && !json.styles) {
-        return callback(new Error('Component JSON file must have `main` property. See git.io/brunch-bower. Contact component author of "' + file + '"'));
-      }
-
       callback(null, json);
     });
   });
-};
-
-// Read bower.json.
-// Returns String.
-var jsonPaths = {
-  bower: 'bower.json',
-  component: 'component.json'
 };
 
 var getJsonPath = function(path, type) {
@@ -51,7 +55,7 @@ var getJsonPath = function(path, type) {
 // Coerce data.main, data.scripts and data.styles to Array.
 var standardizePackage = function(data) {
   if (data.main && !Array.isArray(data.main)) data.main = [data.main];
-  ['main', 'scripts', 'styles'].forEach(function(_) {
+  jsonProps.forEach(function(_) {
     if (!data[_]) data[_] = [];
   });
   return data;
@@ -59,7 +63,7 @@ var standardizePackage = function(data) {
 
 var getPackageFiles = exports.getPackageFiles = function(pkg) {
   var list = [];
-  ['main', 'scripts', 'styles'].forEach(function(property) {
+  jsonProps.forEach(function(property) {
     pkg[property].forEach(function(item) {
       list.push(item);
     });
@@ -67,9 +71,22 @@ var getPackageFiles = exports.getPackageFiles = function(pkg) {
   return unique(list);
 };
 
-var processPackage = function(path, callback) {
-  readJson(getJsonPath(path, 'bower'), function(error, json) {
+var processPackage = function(type, pkg, callback) {
+  var path = pkg.path;
+  var override = pkg.override;
+
+  readJson(getJsonPath(path, type), function(error, json) {
     if (error) return callback(error);
+    if (override) {
+      Object.keys(override).forEach(function(key) {
+        json[key] = override[key];
+      });
+    }
+
+    if (!json.main && !json.scripts && !json.styles) {
+      return callback(new Error('Component JSON file "' + path + '" must have `main` property. See git.io/brunch-bower'));
+    }
+
     var pkg = standardizePackage(json);
     var files = getPackageFiles(pkg).map(function(relativePath) {
       return sysPath.join(path, relativePath);
@@ -81,13 +98,12 @@ var processPackage = function(path, callback) {
   });
 };
 
-var readBowerPackages = function(list, parent, callback) {
-  if (parent == null) parent = sysPath.join('.', 'components');
-
+var readPackages = function(root, type, list, overrides, callback) {
+  var parent = sysPath.join(root, dirs[type]);
   var paths = list.map(function(item) {
-    return sysPath.join(parent, item);
+    return {path: sysPath.join(parent, item), override: overrides[item]};
   });
-  each(paths, processPackage, callback);
+  each(paths, processPackage.bind(null, type), callback);
 };
 
 
@@ -125,16 +141,25 @@ var sortPackages = function(packages) {
   });
 };
 
+
+var init = function(directory, type, callback) {
+  readJson(sysPath.join(directory, jsonPaths[type]), callback);
+};
+
 var readBowerComponents = exports.readBowerComponents = function(directory, callback) {
   if (typeof directory === 'function') {
-    directory = null;
     callback = directory;
+    directory = null;
   }
   if (directory == null) directory = '.';
-  var parent = sysPath.join(directory, 'components');
-  fs.readdir(parent, function(error, packages) {
-    if (error) return callback(new Error(error));
-    readBowerPackages(packages, parent, function(error, data) {
+
+  init(directory, 'bower', function(error, json) {
+    if (error) return callback(error);
+
+    var deps = Object.keys(json.dependencies || {});
+    var overrides = json.override || {};
+
+    readPackages(directory, 'bower', deps, overrides, function(error, data) {
       if (error) return callback(error);
       var sorted = sortPackages(data);
       // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
