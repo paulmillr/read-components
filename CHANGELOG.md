@@ -1,3 +1,6 @@
+# read-components 0.4.0 (unreleased)
+* Changed API.
+
 # read-components 0.3.0 (19 June 2013)
 * Added new API syntax.
 
