@@ -1,17 +1,20 @@
 require('chai').should();
 
-var items = require('../');
+var read = require('../');
+
+var getAttr = function(name) {
+  return function(item) {
+    return item[name];
+  };
+};
 
 describe('Main', function() {
   describe('getPackageFiles', function() {
-    it('should extract all package files', function() {
-      var result = items.getPackageFiles({
-        main: ['a.js', 'b.js'],
-        scripts: ['a.js', 'b.js', 'c.js'],
-        styles: ['a.css']
+    it('should extract all package files', function(done) {
+      read(__dirname, 'bower', function(error, value) {
+        value.map(getAttr('name')).should.eql(['a', 'b', 'c', 'd', 'e']);
+        done();
       });
-
-      result.should.eql(['a.js', 'b.js', 'c.js', 'a.css']);
     });
   });
 });

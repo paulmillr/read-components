@@ -98,12 +98,42 @@ var processPackage = function(type, pkg, callback) {
   });
 };
 
-var readPackages = function(root, type, list, overrides, callback) {
+var gatherDeps = function(packages) {
+  return Object.keys(packages.reduce(function(obj, item) {
+    if (!obj[item.name]) obj[item.name] = true;
+    Object.keys(item.dependencies).forEach(function(dep) {
+      if (!obj[dep]) obj[dep] = true;
+    });
+    return obj;
+  }, {}));
+};
+
+var readPackages = function(root, type, allProcessed, list, overrides, callback) {
   var parent = sysPath.join(root, dirs[type]);
   var paths = list.map(function(item) {
     return {path: sysPath.join(parent, item), override: overrides[item]};
   });
-  each(paths, processPackage.bind(null, type), callback);
+
+  each(paths, processPackage.bind(null, type), function(error, newProcessed) {
+    if (error) return callback(error);
+
+    var processed = allProcessed.concat(newProcessed);
+
+    var processedNames = {};
+    processed.forEach(function(_) {
+      processedNames[_.name] = true;
+    });
+
+    var newDeps = gatherDeps(newProcessed).filter(function(item) {
+      return !processedNames[item];
+    });
+
+    if (newDeps.length === 0) {
+      callback(error, processed);
+    } else {
+      readPackages(root, type, processed, newDeps, overrides, callback);
+    }
+  });
 };
 
 
@@ -121,7 +151,7 @@ var setSortingLevels = function(packages) {
   var setLevel = function(initial, pkg) {
     var level = Math.max(pkg.sortingLevel || 0, initial);
     var deps = Object.keys(pkg.dependencies);
-    // console.debug('setLevel', pkg.name, level);
+    // console.log('setLevel', pkg.name, level);
     pkg.sortingLevel = level;
     deps.forEach(function(dep) {
       setLevel(initial + 1, find(packages, function(_) {
@@ -141,12 +171,15 @@ var sortPackages = function(packages) {
   });
 };
 
+var readAllPackages = function(list, callback) {
+  each(list, function() {})
+};
 
 var init = function(directory, type, callback) {
   readJson(sysPath.join(directory, jsonPaths[type]), callback);
 };
 
-var readBowerComponents = exports.readBowerComponents = function(directory, callback) {
+var readBowerComponents = function(directory, callback) {
   if (typeof directory === 'function') {
     callback = directory;
     directory = null;
@@ -159,7 +192,7 @@ var readBowerComponents = exports.readBowerComponents = function(directory, call
     var deps = Object.keys(json.dependencies || {});
     var overrides = json.override || {};
 
-    readPackages(directory, 'bower', deps, overrides, function(error, data) {
+    readPackages(directory, 'bower', [], deps, overrides, function(error, data) {
       if (error) return callback(error);
       var sorted = sortPackages(data);
       // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
@@ -167,5 +200,15 @@ var readBowerComponents = exports.readBowerComponents = function(directory, call
     });
   });
 };
+
+var read = function(root, type, callback) {
+  if (type === 'bower') {
+    readBowerComponents(root, callback);
+  } else {
+    throw new Error('read-components: unknown type');
+  }
+};
+
+module.exports = read;
 
 // getBowerPaths('.', console.log.bind(console));

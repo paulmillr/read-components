@@ -2,7 +2,6 @@
   "name": "read-bower-components",
   "version": "0.0.0",
   "dependencies": {
-    "backbone": "~1.0.0",
-    "bootstrap": "~2.3.2"
+    "e": "~1.0.0"
   }
 }
