@@ -73,13 +73,13 @@ var getPackageFiles = exports.getPackageFiles = function(pkg) {
 
 var processPackage = function(type, pkg, callback) {
   var path = pkg.path;
-  var override = pkg.override;
+  var overrides = pkg.overrides;
 
   readJson(getJsonPath(path, type), function(error, json) {
     if (error) return callback(error);
-    if (override) {
-      Object.keys(override).forEach(function(key) {
-        json[key] = override[key];
+    if (overrides) {
+      Object.keys(overrides).forEach(function(key) {
+        json[key] = overrides[key];
       });
     }
 
