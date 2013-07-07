@@ -1,3 +1,6 @@
+# read-components 0.4.1 (7 July 2013)
+* Fixed bug with overridden properties.
+
 # read-components 0.4.0 (7 July 2013)
 * Changed API.
 
