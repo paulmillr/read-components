@@ -2,6 +2,57 @@
 
 Read Twitter Bower and component(1) components.
 
+read-components was made for automatic builders like [Brunch](http://brunch.io).
+Automatic means you don’t need to specify bower files which will be built.
+Instead, read-components reads root `bower.json`, opens `bower.json` of
+all packages and their dependencies and auto-calculates concatenation order.
+
+This requires files to have `dependencies` and `main` properties specified.
+But not all bower packages have `bower.json` with `main` property specified.
+I’d say less than 50%. So parsing these will fail:
+
+```json
+// Root bower.json
+{
+  ...
+  dependencies: {
+    "chaplin": "*"
+  }
+}
+
+// bower_components/chaplin/bower.json
+{
+  ...
+  dependencies: {"backbone": "*"}
+}
+
+// bower_components/backbone/bower.json
+{// no deps, no `main`}
+```
+
+read-components solves the problem by allowing user to specify `bower.json`
+**overrides** in root config file.
+
+For example, if your root bower.json looks like that
+
+```json
+{
+  "dependencies": {"chaplin": "*"},
+  "overrides": {
+    "backbone": {
+      "main": "backbone.js",
+      "dependencies": {
+        "underscore": "~1.5.0",
+        "jquery": "~2.0.0"
+      }
+    }
+  }
+}
+```
+
+read-components will treate backbone bower.json as completed and will produce
+correct output for automatic builders.
+
 ## Usage
 
 Node.js:
@@ -14,7 +65,11 @@ var read = require('read-components');
 read('your-project-dir-with-bower.json', 'bower', function(error, components) {
   console.log('All components:', components);
 });
+
+read('.', 'bower', function(error, components) {});
 ```
+
+Output is a list of packages (`bower.json` contents converted to objects with merged properties of root `bower.json` `overrides` property).
 
 ## License
 

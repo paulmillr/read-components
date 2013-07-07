@@ -85,7 +85,7 @@ var processPackage = function(type, pkg, callback) {
     }
 
     if (!json.main) {
-      return callback(new Error('Component JSON file "' + fullPath + '" must have `main` property. See git.io/brunch-bower'));
+      return callback(new Error('Component JSON file "' + fullPath + '" must have `main` property. See https://github.com/paulmillr/read-components#README'));
     }
 
     var pkg = standardizePackage(json);
