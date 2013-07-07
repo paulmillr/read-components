@@ -9,12 +9,20 @@ var getAttr = function(name) {
 };
 
 describe('Main', function() {
-  describe('getPackageFiles', function() {
-    it('should extract all package files', function(done) {
-      read(__dirname, 'bower', function(error, value) {
-        value.map(getAttr('name')).should.eql(['a', 'b', 'c', 'd', 'e']);
+  describe('read', function() {
+    it('should provide the correct order', function(done) {
+      read(__dirname, 'bower', function(error, packages) {
+        packages.map(getAttr('name')).should.eql(['a', 'b', 'c', 'd', 'e']);
         done();
       });
     });
+
+    // it('should extract all package files', function(done) {
+    //   read(__dirname, 'bower', function(error, packages) {
+    //     console.log(packages)
+    //     packages.map(getAttr('files')).should.eql(['a', 'b', 'c', 'd', 'e']);
+    //     done();
+    //   });
+    // });
   });
 });

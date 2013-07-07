@@ -69,7 +69,35 @@ read('your-project-dir-with-bower.json', 'bower', function(error, components) {
 read('.', 'bower', function(error, components) {});
 ```
 
-Output is a list of packages (`bower.json` contents converted to objects with merged properties of root `bower.json` `overrides` property).
+Output is a list of packages like this:
+
+```json
+[{ name: 'd',
+  version: '1.0.2',
+  files: [ '/Users/john/project/bower_components/d/index.js' ],
+  dependencies: { },
+  sortingLevel: 2 },
+{ name: 'e',
+  version: '1.0.1',
+  files: [ '/Users/paul/project/bower_components/e/index.js' ],
+  dependencies: { d: '~1.0.0' },
+  sortingLevel: 1 } ]
+```
+
+Each package will also have `sortingLevel` and `files` specified.
+You can use it to get concatenation order like this:
+
+```javascript
+// Note that it is sorted like this by default.
+packages
+  .sort(function(a, b) {
+    var field = 'sortingLevel';
+    return b[field] - a[field];
+  })
+  .map(function(pkg) {
+    return pkg.files;
+  });
+```
 
 ## License
 

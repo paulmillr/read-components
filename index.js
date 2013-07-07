@@ -89,6 +89,7 @@ var processPackage = function(type, pkg, callback) {
     }
 
     var pkg = standardizePackage(json);
+
     var files = getPackageFiles(pkg).map(function(relativePath) {
       return sysPath.join(path, relativePath);
     });
