@@ -74,8 +74,9 @@ var getPackageFiles = exports.getPackageFiles = function(pkg) {
 var processPackage = function(type, pkg, callback) {
   var path = pkg.path;
   var overrides = pkg.overrides;
+  var fullPath = getJsonPath(path, type);
 
-  readJson(getJsonPath(path, type), function(error, json) {
+  readJson(fullPath, function(error, json) {
     if (error) return callback(error);
     if (overrides) {
       Object.keys(overrides).forEach(function(key) {
@@ -83,8 +84,8 @@ var processPackage = function(type, pkg, callback) {
       });
     }
 
-    if (!json.main && !json.scripts && !json.styles) {
-      return callback(new Error('Component JSON file "' + path + '" must have `main` property. See git.io/brunch-bower'));
+    if (!json.main) {
+      return callback(new Error('Component JSON file "' + fullPath + '" must have `main` property. See git.io/brunch-bower'));
     }
 
     var pkg = standardizePackage(json);
@@ -111,7 +112,7 @@ var gatherDeps = function(packages) {
 var readPackages = function(root, type, allProcessed, list, overrides, callback) {
   var parent = sysPath.join(root, dirs[type]);
   var paths = list.map(function(item) {
-    return {path: sysPath.join(parent, item), override: overrides[item]};
+    return {path: sysPath.join(parent, item), overrides: overrides[item]};
   });
 
   each(paths, processPackage.bind(null, type), function(error, newProcessed) {
@@ -190,7 +191,7 @@ var readBowerComponents = function(directory, callback) {
     if (error) return callback(error);
 
     var deps = Object.keys(json.dependencies || {});
-    var overrides = json.override || {};
+    var overrides = json.overrides || {};
 
     readPackages(directory, 'bower', [], deps, overrides, function(error, data) {
       if (error) return callback(error);
