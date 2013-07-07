@@ -2,6 +2,8 @@
 
 Read Twitter Bower and component(1) components.
 
+Install with `npm install read-components`.
+
 read-components was made for automatic builders like [Brunch](http://brunch.io).
 Automatic means you don’t need to specify bower files which will be built.
 Instead, read-components reads root `bower.json`, opens `bower.json` of
