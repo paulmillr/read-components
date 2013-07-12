@@ -4,6 +4,7 @@ var each = require('async-each');
 
 var jsonPaths = {
   bower: 'bower.json',
+  dotbower: '.bower.json',
   component: 'component.json'
 };
 
@@ -75,28 +76,35 @@ var processPackage = function(type, pkg, callback) {
   var path = pkg.path;
   var overrides = pkg.overrides;
   var fullPath = getJsonPath(path, type);
+  var dotpath = getJsonPath(path, 'dotbower');
 
-  readJson(fullPath, function(error, json) {
-    if (error) return callback(error);
-    if (overrides) {
-      Object.keys(overrides).forEach(function(key) {
-        json[key] = overrides[key];
+  var _read = function(actualPath) {
+    readJson(actualPath, function(error, json) {
+      if (error) return callback(error);
+      if (overrides) {
+        Object.keys(overrides).forEach(function(key) {
+          json[key] = overrides[key];
+        });
+      }
+
+      if (!json.main) {
+        return callback(new Error('Component JSON file "' + actualPath + '" must have `main` property. See https://github.com/paulmillr/read-components#README'));
+      }
+
+      var pkg = standardizePackage(json);
+
+      var files = getPackageFiles(pkg).map(function(relativePath) {
+        return sysPath.join(path, relativePath);
       });
-    }
-
-    if (!json.main) {
-      return callback(new Error('Component JSON file "' + fullPath + '" must have `main` property. See https://github.com/paulmillr/read-components#README'));
-    }
-
-    var pkg = standardizePackage(json);
-
-    var files = getPackageFiles(pkg).map(function(relativePath) {
-      return sysPath.join(path, relativePath);
+      callback(null, {
+        name: pkg.name, version: pkg.version, files: files,
+        dependencies: pkg.dependencies || {}
+      });
     });
-    callback(null, {
-      name: pkg.name, version: pkg.version, files: files,
-      dependencies: pkg.dependencies || {}
-    });
+  };
+
+  fs.exists(dotpath, function(isStableBower) {
+    _read(isStableBower ? dotpath : fullPath)
   });
 };
 
@@ -171,10 +179,6 @@ var sortPackages = function(packages) {
   return setSortingLevels(packages).sort(function(a, b) {
     return b.sortingLevel - a.sortingLevel;
   });
-};
-
-var readAllPackages = function(list, callback) {
-  each(list, function() {})
 };
 
 var init = function(directory, type, callback) {
