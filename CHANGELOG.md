@@ -1,3 +1,6 @@
+# read-components 0.5.0 (12 July 2013)
+* Added bower 1.0 support (`.bower.json`).
+
 # read-components 0.4.2 (7 July 2013)
 * Updated docs and links in code.
 
