@@ -29,7 +29,9 @@ var resolveComponent = function(name) {
 var readJson = function(file, callback) {
   fs.exists(file, function(exists) {
     if (!exists) {
-      return callback(new Error('Component must have "' + file + '"'));
+      var err = new Error('Component must have "' + file + '"');
+      err.code = 'NO_BOWER_JSON';
+      return callback(err);
     };
 
     fs.readFile(file, function(err, contents) {
@@ -193,7 +195,13 @@ var readBowerComponents = function(directory, callback) {
   if (directory == null) directory = '.';
 
   init(directory, 'bower', function(error, json) {
-    if (error) return callback(error);
+    if (error) {
+      if (error.code === 'NO_BOWER_JSON') {
+        return callback(null, []);
+      } else {
+        return callback(error);
+      }
+    }
 
     var deps = Object.keys(json.dependencies || {});
     var overrides = json.overrides || {};
