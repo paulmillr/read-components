@@ -1,3 +1,6 @@
+# read-components 0.5.1 (13 July 2013)
+* Return empty array if there is no root bower.json.
+
 # read-components 0.5.0 (12 July 2013)
 * Added bower 1.0 support (`.bower.json`).
 
