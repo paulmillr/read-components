@@ -13,11 +13,11 @@ This requires files to have `dependencies` and `main` properties specified.
 But not all bower packages have `bower.json` with `main` property specified.
 I’d say less than 50%. So parsing these will fail:
 
-```json
+```js
 // Root bower.json
 {
   ...
-  dependencies: {
+  "dependencies": {
     "chaplin": "*"
   }
 }
@@ -25,7 +25,7 @@ I’d say less than 50%. So parsing these will fail:
 // bower_components/chaplin/bower.json
 {
   ...
-  dependencies: {"backbone": "*"}
+  "dependencies": {"backbone": "*"}
 }
 
 // bower_components/backbone/bower.json
@@ -74,16 +74,16 @@ read('.', 'bower', function(error, components) {});
 Output is a list of packages like this:
 
 ```json
-[{ name: 'd',
-  version: '1.0.2',
-  files: [ '/Users/john/project/bower_components/d/index.js' ],
-  dependencies: { },
-  sortingLevel: 2 },
-{ name: 'e',
-  version: '1.0.1',
-  files: [ '/Users/paul/project/bower_components/e/index.js' ],
-  dependencies: { d: '~1.0.0' },
-  sortingLevel: 1 } ]
+[{ "name": "d",
+  "version": "1.0.2",
+  "files": [ "/Users/john/project/bower_components/d/index.js" ],
+  "dependencies": { },
+  "sortingLevel": 2 },
+{ "name": "e",
+  "version": "1.0.1",
+  "files": [ "/Users/paul/project/bower_components/e/index.js" ],
+  "dependencies": { "d": "~1.0.0" },
+  "sortingLevel": 1 } ]
 ```
 
 Each package will also have `sortingLevel` and `files` specified.
