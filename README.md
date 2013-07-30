@@ -82,7 +82,7 @@ Output is a list of packages like this:
 { "name": "e",
   "version": "1.0.1",
   "files": [ "/Users/paul/project/bower_components/e/index.js" ],
-  "dependencies": { d: "~1.0.0" },
+  "dependencies": { "d": "~1.0.0" },
   "sortingLevel": 1 } ]
 ```
 
