@@ -1,0 +1,7 @@
+{
+  "name": "g",
+  "main": "index.js",
+  "dependencies": {
+    "f": "~1.0.0"
+  }
+}

@@ -3,5 +3,8 @@
   "version": "0.0.0",
   "dependencies": {
     "e": "~1.0.0"
+  },
+  "devDependencies": {
+    "g": "~1.0.0"
   }
 }
