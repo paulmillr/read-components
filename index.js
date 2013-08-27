@@ -204,9 +204,10 @@ var readBowerComponents = function(directory, callback) {
     }
 
     var deps = Object.keys(json.dependencies || {});
+    var devDeps = Object.keys(json.devDependencies || {});
     var overrides = json.overrides || {};
 
-    readPackages(directory, 'bower', [], deps, overrides, function(error, data) {
+    readPackages(directory, 'bower', [], deps.concat(devDeps), overrides, function(error, data) {
       if (error) return callback(error);
       var sorted = sortPackages(data);
       // console.debug('getPaths', sorted.map(function(_) {return _.name;}));
