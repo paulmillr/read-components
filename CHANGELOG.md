@@ -1,3 +1,7 @@
+# read-components 0.5.2 (9 November 2013)
+* All package names are now normalised (`toLowerCase()`).
+  This fixes some bugs since bower is case-insensitive.
+
 # read-components 0.5.1 (13 July 2013)
 * Return empty array if there is no root bower.json.
 
