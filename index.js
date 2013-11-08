@@ -99,7 +99,7 @@ var processPackage = function(type, pkg, callback) {
         return sysPath.join(path, relativePath);
       });
       callback(null, {
-        name: pkg.name, version: pkg.version, files: files,
+        name: pkg.name.toLowerCase(), version: pkg.version, files: files,
         dependencies: pkg.dependencies || {}
       });
     });
