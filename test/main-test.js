@@ -12,7 +12,7 @@ describe('Main', function() {
   describe('read', function() {
     it('should provide the correct order', function(done) {
       read(__dirname, 'bower', function(error, packages) {
-        packages.map(getAttr('name')).should.eql(['a', 'b', 'c', 'd', 'e']);
+        packages.map(getAttr('name')).should.eql(['mixedcase', 'a', 'b', 'c', 'd', 'e']);
         done();
       });
     });

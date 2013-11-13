@@ -1,4 +1,7 @@
 {
   "name": "a",
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "mixedCase": "~1.0.0"
+  }
 }
