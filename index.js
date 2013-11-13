@@ -99,11 +99,10 @@ var processPackage = function(type, pkg, callback) {
         return sysPath.join(path, relativePath);
       });
 
-      var dependencies = pkg.dependencies || {};
-      Object.keys(dependencies).forEach(function(dep) {
-        var v = dependencies[dep];
-        delete dependencies[dep];
-        dependencies[dep.toLowerCase()] = v;
+      var oldDeps = pkg.dependencies || {};
+      var dependencies = {};
+      Object.keys(oldDeps).forEach(function(dep) {
+        dependencies[dep.toLowerCase()] = oldDeps[dep];
       });
 
       callback(null, {
