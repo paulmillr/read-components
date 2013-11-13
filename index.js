@@ -106,8 +106,8 @@ var processPackage = function(type, pkg, callback) {
       });
 
       callback(null, {
-        name: pkg.name.toLowerCase(), version: pkg.version, files: files,
-        dependencies: dependencies
+        name: pkg.name.toLowerCase(), version: pkg.version,
+        files: files, dependencies: dependencies
       });
     });
   };

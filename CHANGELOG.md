@@ -1,3 +1,6 @@
+# read-components 0.5.3 (13 November 2013)
+* Fixed bug with case-insensitive dependencies.
+
 # read-components 0.5.2 (9 November 2013)
 * All package names are now normalised (`toLowerCase()`).
   This fixes some bugs since bower is case-insensitive.
