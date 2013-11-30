@@ -1,0 +1,8 @@
+{
+  "name": "b",
+  "repo": "test/b",
+  "scripts": ["index.js"],
+  "dependencies": {
+    "test/a": "~1.0.0"
+  }
+}
