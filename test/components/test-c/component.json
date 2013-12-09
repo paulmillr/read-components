@@ -1,0 +1,10 @@
+{
+  "name": "c",
+  "repo": "test/c",
+  "main": "main.js",
+  "scripts": ["main.js"],
+  "dependencies": {
+    "test/a": "~1.0.0",
+    "test/b": "~1.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "mixedcase",
+  "repo": "test/mixedcase",
+  "scripts": ["index.js"],
+  "dependencies": {}
+}
