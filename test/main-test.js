@@ -9,20 +9,28 @@ var getAttr = function(name) {
 };
 
 describe('Main', function() {
-  describe('read', function() {
+  describe('readBower', function() {
     it('should provide the correct order', function(done) {
       read(__dirname, 'bower', function(error, packages) {
         packages.map(getAttr('name')).should.eql(['mixedCase', 'a', 'b', 'c', 'd', 'e']);
         done();
       });
     });
-
-    // it('should extract all package files', function(done) {
-    //   read(__dirname, 'bower', function(error, packages) {
-    //     console.log(packages)
-    //     packages.map(getAttr('files')).should.eql(['a', 'b', 'c', 'd', 'e']);
-    //     done();
-    //   });
-    // });
+  });
+  describe('readComponent', function() {
+    it('should provide the correct order', function(done) {
+      read(__dirname, 'component', function(error, packages) {
+        packages.map(getAttr('name')).should.eql(['mixedcase', 'a', 'b', 'c', 'd', 'e']);
+        done();
+      });
+    });
+  });
+  describe('readComponent', function() {
+    it('should provide the correct order', function(done) {
+      read(__dirname, 'component', function(error, packages, aliases) {
+        aliases.length.should.eql(11);
+        done();
+      });
+    });
   });
 });
