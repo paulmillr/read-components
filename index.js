@@ -98,16 +98,9 @@ var processPackage = function(type, pkg, callback) {
       var files = getPackageFiles(pkg).map(function(relativePath) {
         return sysPath.join(path, relativePath);
       });
-
-      var oldDeps = pkg.dependencies || {};
-      var dependencies = {};
-      Object.keys(oldDeps).forEach(function(dep) {
-        dependencies[dep.toLowerCase()] = oldDeps[dep];
-      });
-
       callback(null, {
-        name: pkg.name.toLowerCase(), version: pkg.version,
-        files: files, dependencies: dependencies
+        name: pkg.name, version: pkg.version, files: files,
+        dependencies: pkg.dependencies || {}
       });
     });
   };
