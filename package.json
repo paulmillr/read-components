@@ -4,7 +4,7 @@
   "description": "Read bower and component(1) components",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "cd test && ../node_modules/.bin/mocha main-test.js"
   },
   "repository": "git://github.com/paulmillr/read-components.git",
   "author": "Paul Miller (http://paulmillr.com)",
