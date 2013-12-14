@@ -1,3 +1,7 @@
+# read-components 0.5.4 (14 December 2013)
+* Reverted 0.5.2 and 0.5.3 lowercase changes.
+* Improved error messages on missing dependencies.
+
 # read-components 0.5.3 (13 November 2013)
 * Fixed bug with case-insensitive dependencies.
 
