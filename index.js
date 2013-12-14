@@ -165,10 +165,17 @@ var setSortingLevels = function(packages) {
     var deps = Object.keys(pkg.dependencies);
     // console.log('setLevel', pkg.name, level);
     pkg.sortingLevel = level;
-    deps.forEach(function(dep) {
-      setLevel(initial + 1, find(packages, function(_) {
-        return _.name === dep;
-      }));
+    deps.forEach(function(depName) {
+      var dep = find(packages, function(_) {
+        return _.name === depName;
+      });
+      if (!dep) {
+        var names = Object.keys(packages).map(function(_) {
+          return packages[_].name;
+        }).join(', ');
+        throw new Error('Dependency "' + depName + '" is not present in the list of deps [' + names + ']. Specify correct dependency in bower.json or contact package author.');
+      }
+      setLevel(initial + 1, dep);
     });
   };
 
