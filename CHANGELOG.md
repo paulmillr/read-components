@@ -1,3 +1,6 @@
+# read-components 0.6.0 (16 December 2013)
+* Added support for component(1) [Thanks to Chris McVittie]
+
 # read-components 0.5.4 (14 December 2013)
 * Reverted 0.5.2 and 0.5.3 lowercase changes.
 * Improved error messages on missing dependencies.
