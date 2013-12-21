@@ -3,7 +3,6 @@ var fs = require('fs');
 var each = require('async-each');
 var events = require('events');
 var emitter = new events.EventEmitter();
-var path = require('path');
 
 var jsonPaths = {
   bower: 'bower.json',
@@ -37,7 +36,6 @@ var sanitizeRepo = function(repo) {
   if (repo.indexOf('/') !== repo.lastIndexOf('/')) {
     var res = repo.split('/');
     return res[res.length-1] + '=' + res[res.length];
-
   }
   return repo.replace('/', '-');
 }
@@ -99,9 +97,10 @@ var processPackage = function(type, pkg, callback) {
   var overrides = pkg.overrides;
   var fullPath = getJsonPath(path, type);
   var dotpath = getJsonPath(path, 'dotbower');
-
+  
   var _read = function(actualPath) {
     readJson(actualPath, type, function(error, json) {
+      
       if (error) return callback(error);
       if (overrides) {
         Object.keys(overrides).forEach(function(key) {
@@ -115,12 +114,13 @@ var processPackage = function(type, pkg, callback) {
 
       var pkg = standardizePackage(json);
 
+
       var files = getPackageFiles(pkg).map(function(relativePath) {
         return sysPath.join(path, relativePath);
       });
 
       callback(null, {
-        name: pkg.name, version: pkg.version, repo: pkg.repo,
+        name: pkg.name, version: pkg.version, repo: sysPath.basename(path),
         files: files, dependencies: pkg.dependencies || {}
       });
     });
@@ -187,12 +187,12 @@ var setSortingLevels = function(packages, type) {
     // console.log('setLevel', pkg.name, level);
     pkg.sortingLevel = level;
     deps.forEach(function(depName) {
+      depName = sanitizeRepo(depName)
       var dep = find(packages, function(_) {
         if (type === 'component') {
           var repo = _[dependencyLocator[type]];
           if (repo === depName)
             return true;
-
           // nasty hack to ensure component repo ends with the specified repo
           // e.g. "repo": "https://raw.github.com/component/typeof"
           var suffix = '/' + depName;
@@ -206,7 +206,7 @@ var setSortingLevels = function(packages, type) {
         var names = Object.keys(packages).map(function(_) {
           return packages[_].name;
         }).join(', ');
-        throw new Error('Dependency "' + depName + '" is not present in the list of deps [' + names + ']. Specify correct dependency in bower.json or contact package author.');
+        throw new Error('Dependency "' + depName + '" is not present in the list of deps [' + names + ']. Specify correct dependency in ' + type + '.json or contact package author.');
       }
       setLevel(initial + 1, dep);
     });
