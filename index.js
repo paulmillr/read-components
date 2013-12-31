@@ -10,11 +10,6 @@ var jsonPaths = {
   component: 'component.json'
 };
 
-var dirs = {
-  bower: 'bower_components',
-  component: 'components'
-};
-
 var dependencyLocator = {
   bower: 'name',
   component: 'repo'
@@ -23,6 +18,28 @@ var dependencyLocator = {
 var Builder = require('component-builder');
 
 var jsonProps = ['main', 'scripts', 'styles'];
+
+var getDir = function(root, type) {
+  if (type == 'bower') {
+    var defaultBowerDir = 'bower_components';
+
+    var bowerrcPath = sysPath.join(root, '.bowerrc');
+    var hasBowerrc = fs.existsSync(bowerrcPath);
+
+    if (hasBowerrc) {
+      var bowerrcContent = fs.readFileSync(bowerrcPath, 'utf8');
+      var bowerrcJson = JSON.parse(bowerrcContent);
+      var bowerrcDirectory = bowerrcJson.directory;
+      return bowerrcDirectory || defaultBowerDir;
+    } else {
+      return defaultBowerDir;
+    }
+  } else if (type == 'component') {
+    return 'components';
+  } else {
+    return undefined;
+  }
+};
 
 // Return unique list items.
 var unique = function(list) {
@@ -141,7 +158,7 @@ var gatherDeps = function(packages, type) {
 };
 
 var readPackages = function(root, type, allProcessed, list, overrides, callback) {
-  var parent = sysPath.join(root, dirs[type]);
+  var parent = sysPath.join(root, getDir(root, type));
   var paths = list.map(function(item) {
     if (type === 'component') item = sanitizeRepo(item);
     return {path: sysPath.join(parent, item), overrides: overrides[item]};
