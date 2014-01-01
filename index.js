@@ -19,25 +19,29 @@ var Builder = require('component-builder');
 
 var jsonProps = ['main', 'scripts', 'styles'];
 
-var getDir = function(root, type) {
+var getDir = function(root, type, callback) {
   if (type == 'bower') {
     var defaultBowerDir = 'bower_components';
-
     var bowerrcPath = sysPath.join(root, '.bowerrc');
-    var hasBowerrc = fs.existsSync(bowerrcPath);
 
-    if (hasBowerrc) {
-      var bowerrcContent = fs.readFileSync(bowerrcPath, 'utf8');
-      var bowerrcJson = JSON.parse(bowerrcContent);
-      var bowerrcDirectory = bowerrcJson.directory;
-      return bowerrcDirectory || defaultBowerDir;
-    } else {
-      return defaultBowerDir;
-    }
+    fs.exists(bowerrcPath, function(hasBowerrc) {
+      if (hasBowerrc) {
+        fs.readFile(bowerrcPath, 'utf8', function(error, bowerrcContent) {
+          if (error) return callback(error);
+
+          var bowerrcJson = JSON.parse(bowerrcContent);
+          var bowerrcDirectory = bowerrcJson.directory;
+          console.log("bower here", bowerrcDirectory);
+          callback(null, bowerrcDirectory || defaultBowerDir);
+        });
+      } else {
+        callback(null, defaultBowerDir);
+      }
+    });
   } else if (type == 'component') {
-    return 'components';
+    return callback(null, 'components');
   } else {
-    return undefined;
+    return callback(null);
   }
 };
 
@@ -158,30 +162,34 @@ var gatherDeps = function(packages, type) {
 };
 
 var readPackages = function(root, type, allProcessed, list, overrides, callback) {
-  var parent = sysPath.join(root, getDir(root, type));
-  var paths = list.map(function(item) {
-    if (type === 'component') item = sanitizeRepo(item);
-    return {path: sysPath.join(parent, item), overrides: overrides[item]};
-  });
-
-  each(paths, processPackage.bind(null, type), function(error, newProcessed) {
+  getDir(root, type, function(error, dir) {
     if (error) return callback(error);
-    var processed = allProcessed.concat(newProcessed);
 
-    var processedNames = {};
-    processed.forEach(function(_) {
-      processedNames[_[dependencyLocator[type]]] = true;
+    var parent = sysPath.join(root, dir);
+    var paths = list.map(function(item) {
+      if (type === 'component') item = sanitizeRepo(item);
+      return {path: sysPath.join(parent, item), overrides: overrides[item]};
     });
 
-    var newDeps = gatherDeps(newProcessed, type).filter(function(item) {
-      return !processedNames[item];
-    });
+    each(paths, processPackage.bind(null, type), function(error, newProcessed) {
+      if (error) return callback(error);
+      var processed = allProcessed.concat(newProcessed);
 
-    if (newDeps.length === 0) {
-      callback(error, processed);
-    } else {
-      readPackages(root, type, processed, newDeps, overrides, callback);
-    }
+      var processedNames = {};
+      processed.forEach(function(_) {
+        processedNames[_[dependencyLocator[type]]] = true;
+      });
+
+      var newDeps = gatherDeps(newProcessed, type).filter(function(item) {
+        return !processedNames[item];
+      });
+
+      if (newDeps.length === 0) {
+        callback(error, processed);
+      } else {
+        readPackages(root, type, processed, newDeps, overrides, callback);
+      }
+    });
   });
 };
 
