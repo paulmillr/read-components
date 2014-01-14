@@ -31,7 +31,6 @@ var getDir = function(root, type, callback) {
 
           var bowerrcJson = JSON.parse(bowerrcContent);
           var bowerrcDirectory = bowerrcJson.directory;
-          console.log("bower here", bowerrcDirectory);
           callback(null, bowerrcDirectory || defaultBowerDir);
         });
       } else {
