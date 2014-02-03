@@ -154,6 +154,7 @@ var gatherDeps = function(packages, type) {
   return Object.keys(packages.reduce(function(obj, item) {
     if (!obj[item[dependencyLocator[type]]]) obj[item[dependencyLocator[type]]] = true;
     Object.keys(item.dependencies).forEach(function(dep) {
+      dep = sanitizeRepo(dep);
       if (!obj[dep]) obj[dep] = true;
     });
     return obj;
