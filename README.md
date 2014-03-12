@@ -11,7 +11,7 @@ all packages and their dependencies and auto-calculates concatenation order.
 
 ## Component JSON file must have `main` property.
 
-Every component which is handled by bower must have "main" property in bower.json. You can specify this in your own bower.json in overrides section.
+Every component which is handled by bower must have "main" property in bower.json. You can specify this in your own `bower.json` in `overrides` section. See below for examples.
 
 ## Why
 
