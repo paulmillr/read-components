@@ -4,12 +4,18 @@ Read Twitter Bower and component(1) components.
 
 Install with `npm install read-components`.
 
-read-components was made for automatic builders like [Brunch](http://brunch.io).
+> read-components was made for automatic builders like [Brunch](http://brunch.io).
 Automatic means you don’t need to specify bower files which will be built.
 Instead, read-components reads root `bower.json`, opens `bower.json` of
 all packages and their dependencies and auto-calculates concatenation order.
 
-This requires files to have `dependencies` and `main` properties specified.
+## Component JSON file must have `main` property.
+
+Every component which is handled by bower must have "main" property in bower.json. You can specify this in your own bower.json in overrides section.
+
+## Why
+
+For automatic builds, read-components requires files to have `dependencies` and `main` properties specified.
 But not all bower packages have `bower.json` with `main` property specified.
 I’d say less than 50%. So parsing these will fail:
 
