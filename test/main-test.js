@@ -1,6 +1,7 @@
 require('chai').should();
 
 var read = require('../');
+var path = require('path');
 
 var getAttr = function(name) {
   return function(item) {
@@ -13,6 +14,13 @@ describe('Main', function() {
     it('should provide the correct order', function(done) {
       read(__dirname, 'bower', function(error, packages) {
         packages.map(getAttr('name')).should.eql(['mixedCase', 'a', 'b', 'c', 'd', 'e']);
+        done();
+      });
+    });
+
+    it('should follow bowerrc', function(done) {
+      read(path.join(__dirname, 'bowerrc_fixture'), 'bower', function(error, packages) {
+        packages.map(getAttr('name')).should.eql(['other', 'some']);
         done();
       });
     });

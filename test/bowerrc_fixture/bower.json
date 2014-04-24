@@ -1,0 +1,7 @@
+{
+  "name": "read-bower-components-bowerrc",
+  "version": "0.0.0",
+  "dependencies": {
+    "some": "~1.0.0"
+  }
+}
