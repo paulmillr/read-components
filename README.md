@@ -1,4 +1,4 @@
-# read-components
+# read-components [![Build Status](https://travis-ci.org/paulmillr/read-components.svg?branch=add-travis)](https://travis-ci.org/paulmillr/read-components)
 
 Read Twitter Bower and component(1) components.
 
