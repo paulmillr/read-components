@@ -1,0 +1,8 @@
+{
+  "name": "some",
+  "main": "index.js",
+  "version": "1.0.0",
+  "dependencies": {
+    "other": "0.0.1"
+  }
+}
