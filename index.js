@@ -105,9 +105,7 @@ var standardizePackage = function(data) {
 var getPackageFiles = exports.getPackageFiles = function(pkg) {
   var list = [];
   jsonProps.forEach(function(property) {
-    pkg[property].forEach(function(item) {
-      list.push(item);
-    });
+    Array.isArray(pkg[property]) && list.push.apply(list, pkg[property]);
   });
   return unique(list);
 };
