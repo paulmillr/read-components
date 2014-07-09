@@ -1,6 +1,7 @@
 {
   "name": "b",
   "main": "index.js",
+  "scripts": {"test": "rake"},
   "dependencies": {
     "a": "~1.0.0"
   }
