@@ -18,6 +18,14 @@ describe('Main', function() {
       });
     });
 
+    it('should resolve the dependency files', function(done) {
+      read(__dirname, 'bower', function(error, packages) {
+        var files = [];
+        files.concat.apply(files, packages.map(getAttr('files'))).length.should.eql(6);
+        done();
+      });
+    });
+
     it('should follow bowerrc', function(done) {
       read(path.join(__dirname, 'bowerrc_fixture'), 'bower', function(error, packages) {
         packages.map(getAttr('name')).should.eql(['other', 'some']);
