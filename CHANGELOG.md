@@ -1,3 +1,6 @@
+# read-components 0.6.1 (23 Aug 2014)
+* some shit
+
 # read-components 0.6.0 (16 December 2013)
 * Added support for component(1) [Thanks to Chris McVittie]
 
