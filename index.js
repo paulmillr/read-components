@@ -1,8 +1,6 @@
 var sysPath = require('path');
 var fs = require('fs');
 var each = require('async-each');
-var events = require('events');
-var emitter = new events.EventEmitter();
 
 var jsonPaths = {
   bower: 'bower.json',
@@ -15,8 +13,6 @@ var dependencyLocator = {
   component: 'repo'
 };
 
-var Builder = require('component-builder');
-
 var jsonProps = ['main', 'scripts', 'styles'];
 
 var getDir = function(root, type, callback) {
@@ -24,8 +20,10 @@ var getDir = function(root, type, callback) {
     var defaultBowerDir = 'bower_components';
     var bowerrcPath = sysPath.join(root, '.bowerrc');
 
-    fs.exists(bowerrcPath, function(hasBowerrc) {
-      if (hasBowerrc) {
+    fs.access(bowerrcPath, function(error) {
+      if (error) {
+        callback(null, defaultBowerDir);
+      } else {
         fs.readFile(bowerrcPath, 'utf8', function(error, bowerrcContent) {
           if (error) return callback(error);
 
@@ -33,12 +31,8 @@ var getDir = function(root, type, callback) {
           var bowerrcDirectory = bowerrcJson.directory;
           callback(null, bowerrcDirectory || defaultBowerDir);
         });
-      } else {
-        callback(null, defaultBowerDir);
       }
     });
-  } else if (type == 'component') {
-    return callback(null, 'components');
   } else {
     return callback(null);
   }
@@ -65,8 +59,8 @@ var sanitizeRepo = function(repo) {
 };*/
 
 var readJson = function(file, type, callback) {
-  fs.exists(file, function(exists) {
-    if (!exists) {
+  fs.access(file, function(error) {
+    if (error) {
       var err = new Error('Component must have "' + file + '"');
       err.code = 'NO_'+ type.toUpperCase() +'_JSON';
       return callback(err);
@@ -115,10 +109,10 @@ var processPackage = function(type, pkg, callback) {
   var overrides = pkg.overrides;
   var fullPath = getJsonPath(path, type);
   var dotpath = getJsonPath(path, 'dotbower');
-  
+
   var _read = function(actualPath) {
     readJson(actualPath, type, function(error, json) {
-      
+
       if (error) return callback(error);
       if (overrides) {
         Object.keys(overrides).forEach(function(key) {
@@ -143,8 +137,8 @@ var processPackage = function(type, pkg, callback) {
       });
     });
   };
-  fs.exists(dotpath, function(isStableBower) {
-    _read(isStableBower ? dotpath : fullPath)
+  fs.access(dotpath, function(isUnstableBower) {
+    _read(isUnstableBower ? fullPath : dotpath);
   });
 };
 
@@ -249,7 +243,6 @@ var init = function(directory, type, callback) {
   readJson(sysPath.join(directory, jsonPaths[type]), type, callback);
 };
 
-
 var readComponents = function(directory, callback, type) {
   if (typeof directory === 'function') {
     callback = directory;
@@ -272,39 +265,16 @@ var readComponents = function(directory, callback, type) {
     readPackages(directory, type, [], deps, overrides, function(error, data) {
       if (error) return callback(error);
       var sorted = sortPackages(data, type);
-      aliases = [];
-      if (type === 'component')
-      {
-        builder = new Builder(directory);
-        var aliases = [];
-        emitter.on('addAlias', function(alias) {aliases.push(alias);})
-        builder.buildAliases(function(err, res) {
-          callback(null, sorted, aliases);
-        });
-      }
-      else
-        callback(null, sorted);
+      callback(null, sorted);
     });
   });
-};
-
-Builder.prototype.alias = function(a,b) {
-  var name = this.root
-    ? this.config.name
-    : this.basename;
-  var res = {};
-  res[name + '/' + b] = a;
-  emitter.emit('addAlias', res)
-  return 'require.alias("' + name + '/' + b + '", "' + a + '");';
 };
 
 var read = function(root, type, callback) {
   if (type === 'bower') {
     readComponents(root, callback, type);
-  } else if (type === 'component') {
-    readComponents(root, callback, type);
   } else {
-    throw new Error('read-components: unknown type');
+    throw new Error('read-components: unknown type ' + type);
   }
 };
 
