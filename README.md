@@ -1,6 +1,6 @@
 # read-components [![Build Status](https://travis-ci.org/paulmillr/read-components.svg?branch=add-travis)](https://travis-ci.org/paulmillr/read-components)
 
-Read Twitter Bower and component(1) components.
+Read Twitter Bower components.
 
 Install with `npm install read-components`.
 
@@ -68,8 +68,6 @@ Node.js:
 ```javascript
 var read = require('read-components');
 
-// Second argument is type,
-// in future it will support component(1).
 read('your-project-dir-with-bower.json', 'bower', function(error, components) {
   console.log('All components:', components);
 });
